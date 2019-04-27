@@ -7,7 +7,7 @@ DIRECTIONS = {  #row, col coordinates
     'DOWN_RIGHT': (1, 1), 'DOWN_LEFT': (1, -1)
 }
 
-SIZE = 6
+SIZE = 8
 
 
 def opponent(player):
@@ -67,8 +67,9 @@ def draw_board(player, board):
             else:
                 draw += '| %s ' % board[row][col]
         draw += '|\n'
-    draw += '  +%s\n' % ''.join(SIZE*(3*'-'+'+'))
+    draw += '  +%s' % ''.join(SIZE*(3*'-'+'+'))
     print(draw)
+    print("Score O:%s @:%s" % score(board))
 
 
 def legal_moves(player, board):
@@ -106,6 +107,17 @@ def rand_move(player, board):
     """Selects a random move for player"""
     valid_moves = legal_moves(player, board)
     return r.choice(valid_moves) if valid_moves else None
+
+
+def score(board):
+    W = B = 0
+    for row in range(SIZE):
+        for col in range(SIZE):
+            if board[row][col] == BLACK:
+                B += 1
+            elif board[row][col] == WHITE:
+                W += 1
+    return W, B
 
 
 if __name__ == '__main__':
