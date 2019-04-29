@@ -9,6 +9,17 @@ DIRECTIONS = {  #row, col coordinates
 
 SIZE = 8
 
+SQUARE_WEIGHT = [
+    120, -20, 20,  5,  5, 20, -20, 120,
+    -20, -40, -5, -5, -5, -5, -40, -20,
+    20,   -5, 15,  3,  3, 15,  -5,  20,
+    5,    -5,  3,  3,  3,  3,  -5,   5,
+    5,    -5,  3,  3,  3,  3,  -5,   5,
+    20,   -5, 15,  3,  3, 15,  -5,  20,
+    -20, -40, -5, -5, -5, -5, -40, -20,
+    120, -20, 20,  5,  5, 20, -20, 120,
+]
+
 
 def opponent(player):
     return BLACK if player is WHITE else WHITE
@@ -49,27 +60,12 @@ def find_bracket(move, direction, player, board):
 def is_legal(move, player, board):
     """Search in all directions if a capture is made"""
     row, col = move
-    if not in_bounds(row, col):
+    if not in_bounds(row, col) or board[row][col] != EMPTY:
         return False
     bracket_moves = []  # Boolean list if there was a capture in a direction
     for direction in DIRECTIONS.values():
         bracket_moves.append(find_bracket(move, direction, player, board))
     return board[row][col] == EMPTY and any(bracket_moves)
-
-
-def draw_board(player, board):
-    draw = '    %s\n' % '   '.join(map(str, range(SIZE)))
-    for row in range(SIZE):
-        draw += '  +%s\n%d ' % (''.join(SIZE*(3*'-'+'+')), row)
-        for col in range(SIZE):
-            if is_legal((row, col), player, board):
-                draw += '| . '
-            else:
-                draw += '| %s ' % board[row][col]
-        draw += '|\n'
-    draw += '  +%s' % ''.join(SIZE*(3*'-'+'+'))
-    print(draw)
-    print("Score O:%s @:%s" % score(board))
 
 
 def legal_moves(player, board):
@@ -118,6 +114,48 @@ def score(board):
             elif board[row][col] == WHITE:
                 W += 1
     return W, B
+
+
+def evaluation(player, board):
+    def mobility():
+        mine = legal_moves(player, board)
+        opp = opponent(player)
+        his = legal_moves(opp, board)
+        return len(mine) - len(his)
+
+    def coin_parity():
+        if player == WHITE:
+            mine, his = score(board)
+        else:
+            his, mine = score(board)
+        return mine - his
+
+    def corners():
+        opp = opponent(player)
+        total = 0
+        for row in range(SIZE):
+            for col in range(SIZE):
+                if board[row][col] == player:
+                    total += SQUARE_WEIGHT[row][col]
+                elif board[row][col] == opp:
+                    total -= SQUARE_WEIGHT[row][col]
+        return total
+    pass
+
+
+def draw_board(player, board):
+    draw = '    %s\n' % '   '.join(map(str, range(SIZE)))
+    for row in range(SIZE):
+        draw += '  +%s\n%d ' % (''.join(SIZE*(3*'-'+'+')), row)
+        for col in range(SIZE):
+            if is_legal((row, col), player, board):
+                draw += '| . '
+            else:
+                draw += '| %s ' % board[row][col]
+        draw += '|\n'
+    draw += '  +%s' % ''.join(SIZE*(3*'-'+'+'))
+    print(draw)
+    print("Score O:%s @:%s" % score(board))
 
 
 if __name__ == '__main__':
