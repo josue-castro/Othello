@@ -1,4 +1,4 @@
-import random as r
+
 
 class Board:
     SIZE = 8
@@ -92,8 +92,19 @@ class Board:
                     W += 1
         return W, B
 
+    def next_turn(self, player):
+        opp = self.opponent(player)
+        if self.legal_moves(opp):
+            return opp
+        elif self.legal_moves(player):  # opponent passed
+            print("Player %s passed" % opp)
+            return player
+        else:
+            return None
+
     def draw_board(self, player):
-        draw = '    %s\n' % '   '.join(map(str, range(self.SIZE)))
+        draw = ''
+        draw += '    %s\n' % '   '.join(map(str, range(self.SIZE)))
         for row in range(self.SIZE):
             draw += '  +%s\n%d ' % (''.join(self.SIZE*(3*'-'+'+')), row)
             for col in range(self.SIZE):
@@ -102,7 +113,22 @@ class Board:
                 else:
                     draw += '| %s ' % self.board[row][col]
             draw += '|\n'
-        draw += '  +%s' % ''.join(self.SIZE*(3*'-'+'+'))
-        print(draw)
-        print("Score O:%s @:%s" % self.score())
+        draw += '  +%s\n' % ''.join(self.SIZE*(3*'-'+'+'))
+        abc = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+        # draw += '    %s\n' % '   '.join(abc)
+        print(draw + "\nScore O:%s @:%s" % self.score())
+
+    def draw_abc(self, player):
+        draw = ''
+        for row in range(self.SIZE):
+            draw += '  +%s\n%d ' % (''.join(self.SIZE*(3*'-'+'+')), self.SIZE - row)
+            for col in range(self.SIZE):
+                if self.is_legal((row, col), player):
+                    draw += '| . '
+                else:
+                    draw += '| %s ' % self.board[row][col]
+            draw += '|\n'
+        draw += '  +%s\n' % ''.join(self.SIZE*(3*'-'+'+'))
+        draw += '    %s\n' % '   '.join(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])
+        print(draw + "\nScore O:%s @:%s" % self.score())
 

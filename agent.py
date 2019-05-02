@@ -67,12 +67,7 @@ class Agent:
         best_move = None
         for m in moves:
             new_val = -self.negamax(board.opponent(player), try_move(m), depth - 1)[0]
-            print(new_val, m)
             if new_val > value:
                 value = new_val
                 best_move = m
         return value, best_move
-
-
-
-
