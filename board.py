@@ -82,15 +82,16 @@ class Board:
                 row += dy
                 col += dx
 
-    def score(self):
-        W = B = 0
+    def score(self, player):
+        opp = self.opponent(player)
+        mine = theirs = 0
         for row in range(self.SIZE):
             for col in range(self.SIZE):
-                if self.board[row][col] == self.BLACK:
-                    B += 1
-                elif self.board[row][col] == self.WHITE:
-                    W += 1
-        return W, B
+                if self.board[row][col] == player:
+                    mine += 1
+                elif self.board[row][col] == opp:
+                    theirs += 1
+        return mine, theirs
 
     def next_turn(self, player):
         opp = self.opponent(player)
@@ -117,9 +118,7 @@ class Board:
                     draw += '| %s ' % self.board[row][col]
             draw += '|\n'
         draw += '  +%s\n' % ''.join(self.SIZE*(3*'-'+'+'))
-        abc = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-        # draw += '    %s\n' % '   '.join(abc)
-        print(draw + "\nScore O:%s @:%s" % self.score())
+        print(draw)
 
     def draw_abc(self, player):
         draw = ''
@@ -133,5 +132,5 @@ class Board:
             draw += '|\n'
         draw += '  +%s\n' % ''.join(self.SIZE*(3*'-'+'+'))
         draw += '    %s\n' % '   '.join(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])
-        print(draw + "\nScore O:%s @:%s" % self.score())
+        print(draw)
 

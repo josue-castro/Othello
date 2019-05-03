@@ -25,10 +25,7 @@ class Agent:
 
     def evaluate(self, player, board):
         def coin_parity():
-            if player == board.WHITE:
-                mine, theirs = board.score()
-            else:
-                theirs, mine = board.score()
+            mine, theirs = board.score(player)
             return mine - theirs
 
         def mobility():
