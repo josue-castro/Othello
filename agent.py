@@ -32,10 +32,6 @@ class Agent:
             mine = board.legal_moves(player)
             opp = board.opponent(player)
             theirs = board.legal_moves(opp)
-            if not mine:
-                mine = []
-            if not theirs:
-                theirs = []
             return len(mine) - len(theirs)
 
         def corners():
@@ -67,6 +63,7 @@ class Agent:
     def negamax(self, player, board, depth):
         if depth == 0 or board.end_of_game():
             return self.evaluate(player, board), None
+
         value = self.MIN
 
         def try_move(move):
@@ -74,15 +71,35 @@ class Agent:
             temp_board.make_move(move, player)
             return temp_board
 
-        best_move = None
         moves = board.legal_moves(player)
 
         if not moves:  # Current player has no move
             return self.evaluate(player, board), None
 
+        best_move = moves[0]
         for m in moves:
-            new_val = -self.negamax(board.opponent(player), try_move(m), depth - 1)[0]
-            if new_val >= value:
-                value = new_val
-                best_move = m
+            value, best_move = max((value, best_move), (-self.negamax(board.opponent(player), try_move(m), depth-1)[0], m))
+        return value, best_move
+
+    def negamax_AB(self, player, board, depth, alpha, beta):
+        if depth == 0 or board.end_of_game():
+            return self.evaluate(player, board), None
+        value = self.MIN
+
+        def try_move(move):
+            temp_board = deepcopy(board)
+            temp_board.make_move(move, player)
+            return temp_board
+
+        moves = board.legal_moves(player)
+
+        if not moves:  # Current player has no move
+            return self.evaluate(player, board), None
+
+        best_move = moves[0]
+        for m in moves:
+            value, best_move = max((value, best_move), (-self.negamax_AB(board.opponent(player), try_move(m), depth-1, -beta, -alpha)[0], m))
+            alpha = max(alpha, value)
+            if alpha >= beta:
+                break
         return value, best_move

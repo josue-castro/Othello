@@ -19,7 +19,7 @@ if __name__ == '__main__':
     while True:
         player = board.next_turn(player)
         board.draw_board(player)
-        print(board.board)
+        print("Score O:%d @:%d" % board.score(board.WHITE))
         if player == user:
             while True:
                 move = input("(%s) row col > " % player).split()
@@ -29,11 +29,12 @@ if __name__ == '__main__':
                     break
                 else:
                     print("Try a valid move:", board.legal_moves(player))
-        elif player == agent.player:
-            value, move = agent.negamax(player, board, 3)
-            print(value, move)
-            board.make_move(move, player)
         else:
-            print("Game Over! O:%s @:%s" % board.score())
+            move = agent.negamax(player, board, 3)[1]
+            board.make_move(move, player)
+            print("Player %s moved" % player, move)
+        if board.end_of_game():
+            board.draw_board(player)
+            print("Game Over! O:%d @:%d" % board.score(board.WHITE))
             sys.exit(0)
         os.system('clear')

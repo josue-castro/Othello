@@ -62,7 +62,7 @@ class Board:
                 move = row, col
                 if self.is_legal(move, player):
                     moves.append(move)
-        return moves if moves else None
+        return moves  # A lo mejor tengo que retornar None
 
     def make_move(self, move, player):
         row, col = move
