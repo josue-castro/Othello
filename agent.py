@@ -13,6 +13,8 @@ class Agent:
         [-20, -40, -5, -5, -5, -5, -40, -20],
         [120, -20, 20,  5,  5, 20, -20, 120]
     ]
+    MAX = 10000
+    MIN = -MAX
 
     def __init__(self, player, level):
         self.player = player
@@ -46,7 +48,15 @@ class Agent:
                         total -= self.SQUARE_WEIGHT[row][col]
             return total
 
-        if self.level == 1:
+        if board.end_of_game():
+            diff = coin_parity()
+            if diff < 0:
+                return self.MIN
+            elif diff > 0:
+                return self.MAX
+            else:
+                return diff
+        elif self.level == 1:
             return coin_parity()
         elif self.level == 2:
             return mobility()
@@ -54,17 +64,21 @@ class Agent:
             return corners()
 
     def negamax(self, player, board, depth):
-        if depth == 0:
+        if depth == 0 or board.end_of_game():
             return self.evaluate(player, board), None
-        value = -10000
+        value = self.MIN
 
         def try_move(move):
             temp_board = deepcopy(board)
             temp_board.make_move(move, player)
             return temp_board
 
-        moves = board.legal_moves(player)
         best_move = None
+        moves = board.legal_moves(player)
+
+        if not moves:  # Current player has no move
+            return self.evaluate(player, board), None
+
         for m in moves:
             new_val = -self.negamax(board.opponent(player), try_move(m), depth - 1)[0]
             if new_val > value:

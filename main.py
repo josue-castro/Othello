@@ -1,7 +1,7 @@
+import os, sys
 from board import Board
 from agent import Agent
-from os import system
-
+from time import sleep
 
 # def get_move(move):
 #     abc = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
@@ -19,6 +19,7 @@ if __name__ == '__main__':
     while True:
         player = board.next_turn(player)
         board.draw_board(player)
+        print(board.board)
         if player == user:
             while True:
                 move = input("(%s) row col > " % player).split()
@@ -29,8 +30,10 @@ if __name__ == '__main__':
                 else:
                     print("Try a valid move:", board.legal_moves(player))
         elif player == agent.player:
-            move = agent.negamax(player, board, 3)[1]
+            value, move = agent.negamax(player, board, 3)
+            print(value, move)
             board.make_move(move, player)
         else:
             print("Game Over! O:%s @:%s" % board.score())
-        system('clear')
+            sys.exit(0)
+        os.system('clear')

@@ -102,6 +102,9 @@ class Board:
         else:
             return None
 
+    def end_of_game(self):
+        return not self.legal_moves(self.WHITE) and not self.legal_moves(self.BLACK)
+
     def draw_board(self, player):
         draw = ''
         draw += '    %s\n' % '   '.join(map(str, range(self.SIZE)))
