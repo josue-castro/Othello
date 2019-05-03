@@ -35,6 +35,10 @@ class Agent:
             mine = board.legal_moves(player)
             opp = board.opponent(player)
             theirs = board.legal_moves(opp)
+            if not mine:
+                mine = []
+            if not theirs:
+                theirs = []
             return len(mine) - len(theirs)
 
         def corners():
@@ -81,7 +85,7 @@ class Agent:
 
         for m in moves:
             new_val = -self.negamax(board.opponent(player), try_move(m), depth - 1)[0]
-            if new_val > value:
+            if new_val >= value:
                 value = new_val
                 best_move = m
         return value, best_move
