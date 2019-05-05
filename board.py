@@ -1,5 +1,4 @@
-
-
+from colorama import Fore
 class Board:
     SIZE = 8
     WHITE, BLACK = 'O', '@'
@@ -98,7 +97,7 @@ class Board:
         if self.legal_moves(opp):
             return opp
         elif self.legal_moves(player):  # opponent passed
-            print("Player %s passed" % opp)
+            print("\nPlayer %s passed ...\n" % opp)
             return player
         else:
             return None
@@ -108,12 +107,15 @@ class Board:
 
     def draw_board(self, player):
         draw = ''
-        draw += '    %s\n' % '   '.join(map(str, range(self.SIZE)))
+        draw += '    %s ' % '   '.join(map(str, range(self.SIZE)))
+        draw += "  Score O:%d @:%d\n" % self.score(self.WHITE)
         for row in range(self.SIZE):
             draw += '  +%s\n%d ' % (''.join(self.SIZE*(3*'-'+'+')), row)
             for col in range(self.SIZE):
                 if self.is_legal((row, col), player):
-                    draw += '| . '
+                    draw += '| '+Fore.BLUE+'. '+Fore.BLACK
+                elif self.board[row][col] == self.WHITE:
+                    draw += '| '+Fore.WHITE+'O '+Fore.BLACK
                 else:
                     draw += '| %s ' % self.board[row][col]
             draw += '|\n'
@@ -133,4 +135,3 @@ class Board:
         draw += '  +%s\n' % ''.join(self.SIZE*(3*'-'+'+'))
         draw += '    %s\n' % '   '.join(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])
         print(draw)
-
