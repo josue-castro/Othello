@@ -75,22 +75,21 @@ if __name__ == '__main__':
         players['O'] = Agent(Board.WHITE, level, depth), []
     elif menu == 3:
         level, depth = configure_agent('Black')
-        players['@'] = Agent(Board.WHITE, level, depth), []
+        players['@'] = Agent(Board.BLACK, level, depth), []
     elif menu == 4:
         level, depth = configure_agent('Black')
-        players['@'] = Agent(Board.WHITE, level, depth), []
+        players['@'] = Agent(Board.BLACK, level, depth), []
         level, depth = configure_agent('White')
         players['O'] = Agent(Board.WHITE, level, depth), []
 
     board = Board()
     turn = board.BLACK
-    board.draw_board(turn)
+    board.draw_color_board(turn)
     # Game flow
     while not board.end_of_game():
         if turn in players:  # its an agent's turn
             agent = players[turn][0]
-            print(turn+" agent's turn")
-            time.sleep(1)  # simulate agent's thinking time
+            print(agent.color + " agent's turn")
             start = time.time()  # measure time
             move = agent.negamax_AB(turn, board, agent.depth, Agent.MIN, Agent.MAX)[1]
             end = time.time()
@@ -111,7 +110,7 @@ if __name__ == '__main__':
         os.system('clear')
         prev_turn = turn
         turn = board.next_turn(turn)
-        board.draw_board(turn)
+        board.draw_color_board(turn)
         print(prev_turn+"'s move", move)
     print("Game Over!\n")
     for player in players:

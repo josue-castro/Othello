@@ -1,4 +1,6 @@
 from colorama import Fore
+
+
 class Board:
     SIZE = 8
     WHITE, BLACK = 'O', '@'
@@ -12,6 +14,7 @@ class Board:
 
     def __init__(self):
         self.board = self.new_board()
+        self.num_discs = 4
 
     def new_board(self):
         board = [[self.EMPTY] * self.SIZE for x in range(self.SIZE)]
@@ -68,6 +71,7 @@ class Board:
         self.board[row][col] = player
         for direction in self.DIRECTIONS.values():
             self.make_flips(move, direction, player)
+        self.num_discs += 1
 
     def make_flips(self, move, direction, player):
         bracket = self.find_bracket(move, direction, player)
@@ -81,16 +85,15 @@ class Board:
                 row += dy
                 col += dx
 
-    def score(self, player):
-        opp = self.opponent(player)
-        mine = theirs = 0
+    def score(self):
+        w = b = 0
         for row in range(self.SIZE):
             for col in range(self.SIZE):
-                if self.board[row][col] == player:
-                    mine += 1
-                elif self.board[row][col] == opp:
-                    theirs += 1
-        return mine, theirs
+                if self.board[row][col] == self.WHITE:
+                    w += 1
+                elif self.board[row][col] == self.BLACK:
+                    b += 1
+        return w, b
 
     def next_turn(self, player):
         opp = self.opponent(player)
@@ -108,24 +111,9 @@ class Board:
     def draw_board(self, player):
         draw = ''
         draw += '    %s ' % '   '.join(map(str, range(self.SIZE)))
-        draw += "  Score O:%d @:%d\n" % self.score(self.WHITE)
+        draw += "  Score O:%d @:%d\n" % self.score()
         for row in range(self.SIZE):
             draw += '  +%s\n%d ' % (''.join(self.SIZE*(3*'-'+'+')), row)
-            for col in range(self.SIZE):
-                if self.is_legal((row, col), player):
-                    draw += '| '+Fore.BLUE+'. '+Fore.BLACK
-                elif self.board[row][col] == self.WHITE:
-                    draw += '| '+Fore.WHITE+'O '+Fore.BLACK
-                else:
-                    draw += '| %s ' % self.board[row][col]
-            draw += '|\n'
-        draw += '  +%s\n' % ''.join(self.SIZE*(3*'-'+'+'))
-        print(draw)
-
-    def draw_abc(self, player):
-        draw = ''
-        for row in range(self.SIZE):
-            draw += '  +%s\n%d ' % (''.join(self.SIZE*(3*'-'+'+')), self.SIZE - row)
             for col in range(self.SIZE):
                 if self.is_legal((row, col), player):
                     draw += '| . '
@@ -133,5 +121,21 @@ class Board:
                     draw += '| %s ' % self.board[row][col]
             draw += '|\n'
         draw += '  +%s\n' % ''.join(self.SIZE*(3*'-'+'+'))
-        draw += '    %s\n' % '   '.join(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])
+        print(draw)
+
+    def draw_color_board(self, player):
+        draw = ''
+        draw += '    %s ' % '   '.join(map(str, range(self.SIZE)))
+        draw += "  Score O:%d @:%d\n" % self.score()
+        for row in range(self.SIZE):
+            draw += '  +%s\n%d ' % (''.join(self.SIZE * (3 * '-' + '+')), row)
+            for col in range(self.SIZE):
+                if self.is_legal((row, col), player):
+                    draw += '| ' + Fore.BLUE + '. ' + Fore.BLACK
+                elif self.board[row][col] == self.WHITE:
+                    draw += '| ' + Fore.WHITE + 'O ' + Fore.BLACK
+                else:
+                    draw += '| %s ' % self.board[row][col]
+            draw += '|\n'
+        draw += '  +%s\n' % ''.join(self.SIZE * (3 * '-' + '+'))
         print(draw)

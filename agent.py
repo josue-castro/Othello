@@ -1,64 +1,77 @@
-from random import choice
+import random
 from copy import deepcopy
 
 
 class Agent:
+    # SQUARE_WEIGHT = [
+    #     [120, -20, 20,  5,  5, 20, -20, 120],
+    #     [-20, -40, -5, -5, -5, -5, -40, -20],
+    #     [ 20,  -5, 15,  3,  3, 15,  -5,  20],
+    #     [  5,  -5,  3,  3,  3,  3,  -5,   5],
+    #     [  5,  -5,  3,  3,  3,  3,  -5,   5],
+    #     [ 20,  -5, 15,  3,  3, 15,  -5,  20],
+    #     [-20, -40, -5, -5, -5, -5, -40, -20],
+    #     [120, -20, 20,  5,  5, 20, -20, 120]
+    # ]
     SQUARE_WEIGHT = [
-        [120, -20, 20,  5,  5, 20, -20, 120],
-        [-20, -40, -5, -5, -5, -5, -40, -20],
-        [ 20,  -5, 15,  3,  3, 15,  -5,  20],
-        [  5,  -5,  3,  3,  3,  3,  -5,   5],
-        [  5,  -5,  3,  3,  3,  3,  -5,   5],
-        [ 20,  -5, 15,  3,  3, 15,  -5,  20],
-        [-20, -40, -5, -5, -5, -5, -40, -20],
-        [120, -20, 20,  5,  5, 20, -20, 120]
+        [120, -20, 20,  15,  15, 20, -20, 120],
+        [-20, -40, -5,  -5,  -5, -5, -40, -20],
+        [ 20,  -5, 10,   3,   3, 10,  -5,  20],
+        [ 15,  -5,  3,   3,   3,  3,  -5,  15],
+        [ 15,  -5,  3,   3,   3,  3,  -5,  15],
+        [ 20,  -5, 10,   3,   3, 10,  -5,  20],
+        [-20, -40, -5,  -5,  -5, -5, -40, -20],
+        [120, -20, 20,  15,  15, 20, -20, 120]
     ]
+
     MAX = 10000
     MIN = -MAX
 
-    def __init__(self, player, level):
-        self.player = player
+    def __init__(self, color, level, depth):
+        self.color = color
         self.level = level
-
-    def rand_move(self, board):
-        return choice(board.legal_moves(self.player))
+        self.depth = depth
 
     def evaluate(self, player, board):
-        def coin_parity():
-            mine, theirs = board.score(player)
-            return mine - theirs
+        opp = board.opponent(player)
+        corners = 0
+        discs = 0
+        for row in range(board.SIZE):
+            for col in range(board.SIZE):
+                if board.board[row][col] == player:
+                    discs += 1
+                    corners += self.SQUARE_WEIGHT[row][col]
+                elif board.board[row][col] == opp:
+                    discs -= self.SQUARE_WEIGHT[row][col]
+                    corners -= self.SQUARE_WEIGHT[row][col]
 
         def mobility():
             mine = board.legal_moves(player)
-            opp = board.opponent(player)
-            theirs = board.legal_moves(opp)
+            opponent = board.opponent(player)
+            theirs = board.legal_moves(opponent)
             return len(mine) - len(theirs)
 
-        def corners():
-            opp = board.opponent(player)
-            total = 0
-            for row in range(board.SIZE):
-                for col in range(board.SIZE):
-                    if board.board[row][col] == player:
-                        total += self.SQUARE_WEIGHT[row][col]
-                    elif board.board[row][col] == opp:
-                        total -= self.SQUARE_WEIGHT[row][col]
-            return total
-
         if board.end_of_game():
-            diff = coin_parity()
-            if diff < 0:
+            if discs < 0:
                 return self.MIN
-            elif diff > 0:
+            elif discs > 0:
                 return self.MAX
             else:
-                return diff
+                return discs
+
+        if self.level == 0:
+            return random.randint(-30, 30)
         elif self.level == 1:
-            return coin_parity()
+            return discs
         elif self.level == 2:
             return mobility()
         elif self.level == 3:
-            return corners()
+            return corners
+        elif self. level == 4:
+            if board.num_discs < 34:
+                return mobility()+corners
+            else:
+                return discs
 
     def negamax(self, player, board, depth):
         if depth == 0 or board.end_of_game():
@@ -78,13 +91,15 @@ class Agent:
 
         best_move = moves[0]
         for m in moves:
-            value, best_move = max((value, best_move), (-self.negamax(board.opponent(player), try_move(m), depth-1)[0], m))
+            new_value = -self.negamax(board.opponent(player), try_move(m), depth-1)[0]
+            if new_value >= value:
+                value = new_value
+                best_move = m
         return value, best_move
 
     def negamax_AB(self, player, board, depth, alpha, beta):
         if depth == 0 or board.end_of_game():
             return self.evaluate(player, board), None
-        value = self.MIN
 
         def try_move(move):
             temp_board = deepcopy(board)
@@ -98,8 +113,13 @@ class Agent:
 
         best_move = moves[0]
         for m in moves:
-            value, best_move = max((value, best_move), (-self.negamax_AB(board.opponent(player), try_move(m), depth-1, -beta, -alpha)[0], m))
-            alpha = max(alpha, value)
             if alpha >= beta:
                 break
-        return value, best_move
+            value = -self.negamax_AB(board.opponent(player), try_move(m), depth-1, -beta, -alpha)[0]
+            if value > alpha:
+                alpha = value
+                best_move = m
+        return alpha, best_move
+
+    def best_move(self, board):
+        return self.negamax_AB(self.color, board, self.depth, self.MIN, self.MAX)[1]
