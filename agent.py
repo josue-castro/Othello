@@ -14,15 +14,16 @@ class Agent:
     #     [120, -20, 20,  5,  5, 20, -20, 120]
     # ]
     SQUARE_WEIGHT = [
-        [120, -20, 20,  15,  15, 20, -20, 120],
-        [-20, -40, -5,  -5,  -5, -5, -40, -20],
-        [ 20,  -5, 10,   3,   3, 10,  -5,  20],
-        [ 15,  -5,  3,   3,   3,  3,  -5,  15],
-        [ 15,  -5,  3,   3,   3,  3,  -5,  15],
-        [ 20,  -5, 10,   3,   3, 10,  -5,  20],
-        [-20, -40, -5,  -5,  -5, -5, -40, -20],
-        [120, -20, 20,  15,  15, 20, -20, 120]
+        [100, -20, 20,  20,  20, 20, -20, 100],
+        [-20, -40, -1,  -1,  -1, -1, -40, -20],
+        [ 20,  -1,  3,   1,   1,  3,  -1,  20],
+        [ 20,  -1,  1,   2,   2,  1,  -1,  20],
+        [ 20,  -1,  1,   2,   2,  1,  -1,  20],
+        [ 20,  -1,  3,   1,   1,  3,  -1,  20],
+        [-20, -40, -1,  -1,  -1, -1, -40, -20],
+        [100, -20, 20,  20,  20, 20, -20, 100]
     ]
+
 
     MAX = 10000
     MIN = -MAX
@@ -33,6 +34,9 @@ class Agent:
         self.depth = depth
 
     def evaluate(self, player, board):
+        if self.level == 0:
+            return random.randint(-30, 30)
+
         opp = board.opponent(player)
         corners = 0
         discs = 0
@@ -47,7 +51,7 @@ class Agent:
                     discs -= 1
                     corners -= self.SQUARE_WEIGHT[row][col]
 
-                if self.level == 2:
+                if self.level == 2 or (self.level == 4 and len(board.empty_squares) <= 30):
                     if board.is_legal((row, col), player):
                         mobility += 1
                     if board.is_legal((row, col), opp):
@@ -55,19 +59,18 @@ class Agent:
 
         if board.end_of_game():
             return self.final_value(player, board)
-        if self.level == 0:
-            return random.randint(-30, 30)
-        elif self.level == 1:
+        if self.level == 1:
             return discs
         elif self.level == 2:
             return mobility
         elif self.level == 3:
             return corners
         elif self. level == 4:
-            if board.num_discs < 34:
-                return mobility+corners
+            if len(board.empty_squares) > 30:
+                return corners
             else:
-                return discs
+                return discs+mobility
+
 
     def negamax(self, player, board, depth):
         if depth == 0 or board.end_of_game():
@@ -105,7 +108,7 @@ class Agent:
         moves = board.legal_moves(player)
 
         if not moves:  # Current player has no move
-            if not board.has_move(board.opponent(player)):
+            if not board.has_move(board.opponent(player)):  # Game has ended
                 return self.final_value(player, board), None
             return self.evaluate(player, board), None
 
@@ -118,6 +121,9 @@ class Agent:
                 alpha = value
                 best_move = m
         return alpha, best_move
+
+    def best_move(self, board):
+        return self.negamax_AB(self.color, board, self.depth, self.MIN, self.MAX)
 
     def final_value(self, player, board):
         score = 0

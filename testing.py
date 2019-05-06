@@ -6,9 +6,10 @@ from board import Board
 if __name__ == '__main__':
     board = Board()
     players = {
-        Board.BLACK: (Agent(Board.BLACK, 2, 4), []),
-        Board.WHITE: (Agent(Board.WHITE, 1, 4), [])
+        Board.BLACK: (Agent(Board.BLACK, 4, 5), []),
+        Board.WHITE: (Agent(Board.WHITE, 1, 5), [])
     }
+
     turn = Board.BLACK
     board.draw_board(turn)
     while not board.end_of_game():
@@ -24,7 +25,6 @@ if __name__ == '__main__':
         board.draw_board(turn)
         print(prev_turn+"'s move", move)
         print("Your turn %s" % turn)
-        print(board.board)
     for player in players:
         print("Player %s avg = %dms, max = %dms" % (player, sum(players[player][1]) * 1000 / len(players[player][1]), max(players[player][1]) * 1000))
 

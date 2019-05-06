@@ -13,17 +13,26 @@ class Board:
     }
 
     def __init__(self):
-        self.board = self.new_board()
+        self.board, self.empty_squares = self.new_board()
         self.num_discs = 4
 
     def new_board(self):
         board = [[self.EMPTY] * self.SIZE for x in range(self.SIZE)]
-        mid = (self.SIZE - 2) // 2
-        board[mid][mid] = self.WHITE
-        board[mid][self.SIZE - 1 - mid] = self.BLACK
-        board[self.SIZE - 1 - mid][mid] = self.BLACK
-        board[self.SIZE - 1 - mid][self.SIZE - 1 - mid] = self.WHITE
-        return board
+        board[3][3] = self.WHITE
+        board[3][4] = self.BLACK
+        board[4][3] = self.BLACK
+        board[4][4] = self.WHITE
+
+        empty_squares = []
+        for row in range(self.SIZE):
+            for col in range(self.SIZE):
+                empty_squares.append((row, col))
+
+        empty_squares.remove((3, 3))
+        empty_squares.remove((3, 4))
+        empty_squares.remove((4, 3))
+        empty_squares.remove((4, 4))
+        return board, empty_squares
 
     def in_bounds(self, row, col):
         return (0 <= row < self.SIZE) and (0 <= col < self.SIZE)
@@ -52,18 +61,16 @@ class Board:
         row, col = move
         if not self.in_bounds(row, col) or self.board[row][col] != self.EMPTY:
             return False
-        bracket_moves = []  # Boolean list if there was a capture in a direction
         for direction in self.DIRECTIONS.values():
-            bracket_moves.append(self.find_bracket(move, direction, player))
-        return self.board[row][col] == self.EMPTY and any(bracket_moves)
+            if self.find_bracket(move, direction, player):
+                return True
+        return False
 
     def legal_moves(self, player):
         moves = []
-        for row in range(self.SIZE):
-            for col in range(self.SIZE):
-                move = row, col
-                if self.is_legal(move, player):
-                    moves.append(move)
+        for move in self.empty_squares:
+            if self.is_legal(move, player):
+                moves.append(move)
         return moves  # A lo mejor tengo que retornar None
 
     def make_move(self, move, player):
@@ -72,6 +79,7 @@ class Board:
         for direction in self.DIRECTIONS.values():
             self.make_flips(move, direction, player)
         self.num_discs += 1
+        self.empty_squares.remove(move)
 
     def make_flips(self, move, direction, player):
         bracket = self.find_bracket(move, direction, player)
@@ -109,10 +117,9 @@ class Board:
         return not self.has_move(self.WHITE) and not self.has_move(self.BLACK)
 
     def has_move(self, player):
-        for row in range(self.SIZE):
-            for col in range(self.SIZE):
-                if self.is_legal((row, col), player):
-                    return True
+        for move in self.empty_squares:
+            if self.is_legal(move, player):
+                return True
 
     def draw_board(self, player):
         draw = ''
