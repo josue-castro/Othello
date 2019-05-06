@@ -6,8 +6,8 @@ from board import Board
 if __name__ == '__main__':
     board = Board()
     players = {
-        Board.BLACK: (Agent(Board.BLACK, 4, 2), []),
-        Board.WHITE: (Agent(Board.WHITE, 3, 2), [])
+        Board.BLACK: (Agent(Board.BLACK, 5, 5), []),
+        Board.WHITE: (Agent(Board.WHITE, 4, 5), [])
     }
 
     turn = Board.BLACK

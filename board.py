@@ -144,7 +144,7 @@ class Board:
             draw += '  +%s\n%d ' % (''.join(self.SIZE * (3 * '-' + '+')), row)
             for col in range(self.SIZE):
                 if self.is_legal((row, col), player):
-                    draw += '| ' + Fore.BLUE + '. ' + Fore.BLACK
+                    draw += '| . '  # + Fore.YELLOW + '. ' + Fore.BLACK
                 elif self.board[row][col] == self.WHITE:
                     draw += '| ' + Fore.WHITE + 'O ' + Fore.BLACK
                 else:

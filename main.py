@@ -33,9 +33,9 @@ def valid_play(user_input):
 
 
 def configure_agent(color):
-    level_option = ['0', '1', '2', '3', '4', '']
+    level_option = ['0', '1', '2', '3', '4', '5', '']
     print("DEFAULT=1".rjust(40), flush=True, end='\r')
-    level = input("%s's difficulty (0-4): " % color)
+    level = input("%s's difficulty (0-5): " % color)
     while level not in level_option:
         print("Try a Valid Option!")
         clean_line(2)

@@ -58,7 +58,7 @@ class Agent:
                     corners -= self.SQUARE_WEIGHT[row][col]
 
                 # ONLY CALCULATE MOBILITY IF NECESSARY, IT TAKES MORE TIME
-                if self.level == 1 or (self.level == 4 and len(board.empty_squares) <= 30):
+                if self.level == 1 or self.level == 5 or (self.level == 4 and len(board.empty_squares) <= 30):
                     if board.is_legal((row, col), player):
                         mobility += 1
                     if board.is_legal((row, col), opp):
@@ -76,11 +76,13 @@ class Agent:
             return discs
         elif self.level == 3:
             return corners
-        elif self. level == 4:
+        elif self.level == 4:
             if len(board.empty_squares) > 30:
                 return corners
             else:
                 return discs+mobility
+        elif self.level == 5:
+            return corners+discs+mobility
 
     def negamax(self, player, board, depth):
         if depth == 0:
