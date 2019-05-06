@@ -97,16 +97,22 @@ class Board:
 
     def next_turn(self, player):
         opp = self.opponent(player)
-        if self.legal_moves(opp):
+        if self.has_move(opp):
             return opp
-        elif self.legal_moves(player):  # opponent passed
+        elif self.has_move(player):  # opponent passed
             print("\nPlayer %s passed ...\n" % opp)
             return player
         else:
             return None
 
     def end_of_game(self):
-        return not self.legal_moves(self.WHITE) and not self.legal_moves(self.BLACK)
+        return not self.has_move(self.WHITE) and not self.has_move(self.BLACK)
+
+    def has_move(self, player):
+        for row in range(self.SIZE):
+            for col in range(self.SIZE):
+                if self.is_legal((row, col), player):
+                    return True
 
     def draw_board(self, player):
         draw = ''

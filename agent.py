@@ -36,40 +36,36 @@ class Agent:
         opp = board.opponent(player)
         corners = 0
         discs = 0
+        mobility = 0
+
         for row in range(board.SIZE):
             for col in range(board.SIZE):
                 if board.board[row][col] == player:
                     discs += 1
                     corners += self.SQUARE_WEIGHT[row][col]
                 elif board.board[row][col] == opp:
-                    discs -= self.SQUARE_WEIGHT[row][col]
+                    discs -= 1
                     corners -= self.SQUARE_WEIGHT[row][col]
 
-        def mobility():
-            mine = board.legal_moves(player)
-            opponent = board.opponent(player)
-            theirs = board.legal_moves(opponent)
-            return len(mine) - len(theirs)
+                if self.level == 2:
+                    if board.is_legal((row, col), player):
+                        mobility += 1
+                    if board.is_legal((row, col), opp):
+                        mobility -= 1
 
         if board.end_of_game():
-            if discs < 0:
-                return self.MIN
-            elif discs > 0:
-                return self.MAX
-            else:
-                return discs
-
+            return self.final_value(player, board)
         if self.level == 0:
             return random.randint(-30, 30)
         elif self.level == 1:
             return discs
         elif self.level == 2:
-            return mobility()
+            return mobility
         elif self.level == 3:
             return corners
         elif self. level == 4:
             if board.num_discs < 34:
-                return mobility()+corners
+                return mobility+corners
             else:
                 return discs
 
@@ -98,7 +94,7 @@ class Agent:
         return value, best_move
 
     def negamax_AB(self, player, board, depth, alpha, beta):
-        if depth == 0 or board.end_of_game():
+        if depth == 0:
             return self.evaluate(player, board), None
 
         def try_move(move):
@@ -109,6 +105,8 @@ class Agent:
         moves = board.legal_moves(player)
 
         if not moves:  # Current player has no move
+            if not board.has_move(board.opponent(player)):
+                return self.final_value(player, board), None
             return self.evaluate(player, board), None
 
         best_move = moves[0]
@@ -121,5 +119,18 @@ class Agent:
                 best_move = m
         return alpha, best_move
 
-    def best_move(self, board):
-        return self.negamax_AB(self.color, board, self.depth, self.MIN, self.MAX)[1]
+    def final_value(self, player, board):
+        score = 0
+        opp = board.opponent(player)
+        for row in range(board.SIZE):
+            for col in range(board.SIZE):
+                if board.board[row][col] == player:
+                    score += 1
+                elif board.board[row][col] == opp:
+                    score -= 1
+        if score < 0:
+            return self.MIN
+        elif score > 0:
+            return self.MAX
+        else:
+            return score

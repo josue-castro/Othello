@@ -113,10 +113,12 @@ if __name__ == '__main__':
                         clean_line(2)
             board.make_move(move, turn)
             os.system('clear')
+            # preparing next turn
             prev_turn = turn
             turn = board.next_turn(turn)
             board.draw_color_board(turn)
             print(prev_turn+"'s move", move)
+
         print("Game Over!\n")
         for player in players:
             print("Player %s avg = %dms, max = %dms" % (player, sum(players[player][1]) * 1000 / len(players[player][1]), max(players[player][1]) * 1000))

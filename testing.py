@@ -6,7 +6,7 @@ from board import Board
 if __name__ == '__main__':
     board = Board()
     players = {
-        Board.BLACK: (Agent(Board.BLACK, 4, 4), []),
+        Board.BLACK: (Agent(Board.BLACK, 2, 4), []),
         Board.WHITE: (Agent(Board.WHITE, 1, 4), [])
     }
     turn = Board.BLACK
@@ -14,7 +14,6 @@ if __name__ == '__main__':
     while not board.end_of_game():
         agent = players[turn][0]
         start = time()
-        print(agent.color)
         move = agent.negamax_AB(agent.color, board, agent.depth, Agent.MIN, Agent.MAX)[1]
         # move = agent.negamax(agent.color, board, agent.depth,)[1]
         end = time()
@@ -28,3 +27,4 @@ if __name__ == '__main__':
         print(board.board)
     for player in players:
         print("Player %s avg = %dms, max = %dms" % (player, sum(players[player][1]) * 1000 / len(players[player][1]), max(players[player][1]) * 1000))
+
