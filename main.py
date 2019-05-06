@@ -33,49 +33,54 @@ def valid_play(user_input):
 
 
 def configure_agent(color):
+    level_option = ['0', '1', '2', '3', '4', '']
     print("DEFAULT=1".rjust(40), flush=True, end='\r')
-    level = input("%s's difficulty (1-3): " % color)
-    while not level.isnumeric():
+    level = input("%s's difficulty (0-4): " % color)
+    while level not in level_option:
         print("Try a Valid Option!")
         clean_line(2)
-        level = input("%s's difficulty (1-3): " % color)
-    level = int(level) if 0 < int(level) <= 3 else DEFAULT_LEVEL
+        level = input("%s's difficulty (0-4): " % color)
+    level = DEFAULT_LEVEL if level is '' else int(level)
+
+    depth_options = ['1', '2', '3', '4', '5', '6', '']
     print("DEFAULT=2".rjust(40), flush=True, end='\r')
     depth = input("%s's depth (1-6): " % color)
-    while not depth.isnumeric():
+    while depth not in depth_options:
         print("Try a Valid Option!")
         clean_line(2)
         depth = input("%s's depth (1-6): " % color)
-    depth = int(depth) if 0 < int(depth) <= 6 else DEFAULT_DEPTH
+    depth = DEFAULT_DEPTH if depth is '' else int(depth)
     os.system('clear')
     return level, depth
 
 
 if __name__ == '__main__':
-    # Setting up menu and options
     while True:
+        # HEADER
         print(Back.CYAN)
         os.system('clear')
         say("Othello", font='block', align='center', colors=['white', 'black'])
         print(Fore.BLACK)
+        # MENU
         print("1. Player vs Player\n2. Player vs AI\n3. AI vs Player\n4. AI vs AI\n")
+        menu_options = ['1', '2', '3', '4']
         print("\t\tPress ENTER to Exit", flush=True, end='\r')
         menu = input("Select: ")
-        while True:
+        # INPUT OPTION
+        while menu not in menu_options:
             if not menu:
                 exit_app()
-            elif menu.isnumeric() and 0 < int(menu) <= 4:
-                menu = int(menu)
-                break
             print("Enter a Valid Option!")
             clean_line(2)
             menu = input("Select: ")
+        # VALID OPTION
+        menu = int(menu)
         players = {}
         os.system('clear')
+        # AGENT CONFIGURATION
         if menu == 1:
             pass
         elif menu == 2:
-            # configure agent
             level, depth = configure_agent('White')
             players['O'] = Agent(Board.WHITE, level, depth), []
         elif menu == 3:
@@ -86,36 +91,39 @@ if __name__ == '__main__':
             players['@'] = Agent(Board.BLACK, level, depth), []
             level, depth = configure_agent('White')
             players['O'] = Agent(Board.WHITE, level, depth), []
-
+        # BEGIN GAME, SET UP BOARD
         board = Board()
         turn = board.BLACK
         board.draw_color_board(turn)
-        # Game flow
-        while not board.end_of_game():
-            if turn in players:  # its an agent's turn
+        while turn:
+            # AGENT TURN
+            if turn in players:
                 agent = players[turn][0]
-                print(agent.color + " agent's turn")
-                start = time.time()  # measure time
-                move = agent.negamax_AB(turn, board, agent.depth, Agent.MIN, Agent.MAX)[1]
+                # TIME STATISTICS
+                start = time.time()
+                move = agent.best_move(board)
                 end = time.time()
+                # ---------------
+                print(agent.color + " agent's turn: ", move)
+                # SAVE TIME
                 players[turn][1].append(end-start)
-            else:  # user turn
+            else:
+                # USER TURN
                 while True:
                     move = input(turn+"'s turn (row col)> ")
                     if not move:
                         exit_app()
                     move = tuple(valid_play(move))
                     if move and board.is_legal(move, turn):
-                        board.make_move(move, turn)
                         break
                     else:
                         print("Try a valid move!")
                         clean_line(2)
             board.make_move(move, turn)
             os.system('clear')
-            # preparing next turn
+            # PREPARE NEXT TURN
             prev_turn = turn
-            turn = board.next_turn(turn)
+            turn = board.next_turn(turn)  # NONE IF GAME IS OVER
             board.draw_color_board(turn)
             print(prev_turn+"'s move", move)
 

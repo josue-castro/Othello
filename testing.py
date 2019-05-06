@@ -6,8 +6,8 @@ from board import Board
 if __name__ == '__main__':
     board = Board()
     players = {
-        Board.BLACK: (Agent(Board.BLACK, 4, 5), []),
-        Board.WHITE: (Agent(Board.WHITE, 1, 5), [])
+        Board.BLACK: (Agent(Board.BLACK, 4, 2), []),
+        Board.WHITE: (Agent(Board.WHITE, 3, 2), [])
     }
 
     turn = Board.BLACK
@@ -15,7 +15,7 @@ if __name__ == '__main__':
     while not board.end_of_game():
         agent = players[turn][0]
         start = time()
-        move = agent.negamax_AB(agent.color, board, agent.depth, Agent.MIN, Agent.MAX)[1]
+        move = agent.best_move(board)
         # move = agent.negamax(agent.color, board, agent.depth,)[1]
         end = time()
         players[turn][1].append(end-start)
