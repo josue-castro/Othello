@@ -14,7 +14,6 @@ class Board:
 
     def __init__(self):
         self.board, self.empty_squares = self.new_board()
-        self.num_discs = 4
 
     def new_board(self):
         board = [[self.EMPTY] * self.SIZE for x in range(self.SIZE)]
@@ -43,16 +42,18 @@ class Board:
     def find_bracket(self, move, direction, player):
         """Search in one direction if there is a bracket"""
         row, col = move
-        dy, dx = direction  # direction displacement
+        dy, dx = direction  # DIRECTION DISPLACEMENT
         row += dy
         col += dx
+
         if not self.in_bounds(row, col) or self.board[row][col] == player:
             return None
+
         opp = self.opponent(player)
-        while self.board[row][col] == opp:  # Opponent disks in straight line until bracket
+        while self.board[row][col] == opp:  # OPPONENT DISC IN DIRECTION ... LOOKING FOR BRACKET
             row += dy
             col += dx
-            if not self.in_bounds(row, col):  # Entire board was search in the given direction, no bracket found
+            if not self.in_bounds(row, col):  # NO BRACKET FOUND
                 return None
         return (row, col) if self.board[row][col] is player else None
 
@@ -78,7 +79,6 @@ class Board:
         self.board[row][col] = player
         for direction in self.DIRECTIONS.values():
             self.make_flips(move, direction, player)
-        self.num_discs += 1
         self.empty_squares.remove(move)
 
     def make_flips(self, move, direction, player):
